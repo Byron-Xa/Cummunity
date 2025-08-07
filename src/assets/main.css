@@ -1,0 +1,76 @@
+@import "tailwindcss";
+@font-face {
+  font-family: "Desing";
+  src: url("../assets/fonts/Designer.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
+.font-desing {
+    font-family: 'Desing', sans-serif;
+}
+.fade-in {
+  animation: fadeIn 1s ease-in;
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+nav {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.service-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.service-icon {
+    background: linear-gradient(135deg, #3399FF 0%, #009688 100%);
+}
+
+/* OPCIÓN SIMPLE QUE FUNCIONA GARANTIZADO */
+.scroll-items {
+  opacity: 0.1; /* Casi invisible */
+  transform: translateY(80px); /* Bien desplazado */
+  transition: all 1s ease;
+}
+
+.scroll-items.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* OPCIÓN CON MÁS EFECTOS VISUALES */
+.scroll-items-fancy {
+  opacity: 0.2;
+  transform: translateY(60px) rotateX(20deg);
+  transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  filter: blur(3px);
+}
+
+.scroll-items-fancy.visible {
+  opacity: 1;
+  transform: translateY(0) rotateX(0deg);
+  filter: blur(0px);
+}
+
+button{
+  cursor: pointer;
+}
+h3,
+.text-2xl,
+h3.text-2xl {
+    border: none !important;
+    border-bottom: none !important;
+    border-top: none !important;
+    outline: none !important;
+    text-decoration: none !important;
+    box-shadow: none !important;
+}

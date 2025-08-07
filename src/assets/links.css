@@ -1,0 +1,35 @@
+.router-link-active {
+    color: #2563eb !important;
+    background-color: rgba(239, 246, 255, 0.8) !important;
+}
+
+/* Glassmorphism effect personalizado */
+.backdrop-blur-xl {
+    backdrop-filter: blur(24px);
+}
+
+/* Animaciones adicionales para el menú móvil */
+.mobile-menu-enter-active,
+.mobile-menu-leave-active {
+    transform-origin: top center;
+}
+
+.mobile-menu-enter-from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+}
+
+.mobile-menu-enter-to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.mobile-menu-leave-from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.mobile-menu-leave-to {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+}

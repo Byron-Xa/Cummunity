@@ -1,0 +1,564 @@
+<script>
+import { useModalMovil } from '../../assets/js/motion/modalMovil'
+import { onMounted, onUnmounted, ref, watch, nextTick } from 'vue'
+import { createIcons, icons } from 'lucide'
+
+export default {
+    data(){
+        return {
+            contactInfo: {
+                phone: '+593 98 389 0338',
+                message: 'Hola! quiero contactarte con usted para discutir sobre el proyecto de aplicaciones móviles para mi empresa o negocio.'
+            }
+        }
+    },
+    computed: {
+        isMobile() {
+            return /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+        }
+    },
+    methods: {
+        abrirWhatsApp() {
+            const { phone, message } = this.contactInfo;
+            
+            let url;
+            if (this.isMobile) {
+                url = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(message)}`;
+            } else {
+                url = `https://web.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`;
+            }
+            
+            window.open(url, '_blank');
+        },
+        
+        contactarWhatsApp() {
+            const url = `https://wa.me/${this.contactInfo.phone}?text=${encodeURIComponent(this.contactInfo.message)}`;
+            window.open(url, '_blank');
+        }
+    },
+    setup() {
+        const { isModalOpenMovil, closeModalMovil } = useModalMovil()
+
+        // Referencias para el scroll
+        const scrollContainer = ref(null)
+        const topGradient = ref(null)
+        const bottomGradient = ref(null)
+
+        // Función para inicializar los iconos
+        const initializeIcons = () => {
+            nextTick(() => {
+                createIcons({
+                    icons,
+                    "stroke-width": 2.5,
+                    nameAttr: "data-lucide",
+                });
+            });
+        };
+
+        // Watch para detectar cuando el modal se abre
+        watch(isModalOpenMovil, (newVal) => {
+            if (newVal) {
+                initializeIcons();
+                // También manejar el scroll después de que se abra
+                setTimeout(handleScroll, 100);
+            }
+        });
+
+        // Función para manejar el scroll y mostrar/ocultar gradientes
+        const handleScroll = () => {
+            if (!scrollContainer.value || !topGradient.value || !bottomGradient.value) return
+
+            const { scrollTop, scrollHeight, clientHeight } = scrollContainer.value
+            
+            // Mostrar gradiente superior si no estamos en la parte superior
+            if (scrollTop > 10) {
+                topGradient.value.classList.add('show')
+            } else {
+                topGradient.value.classList.remove('show')
+            }
+
+            // Mostrar gradiente inferior si no estamos en la parte inferior
+            if (scrollTop + clientHeight < scrollHeight - 10) {
+                bottomGradient.value.classList.add('show')
+            } else {
+                bottomGradient.value.classList.remove('show')
+            }
+        }
+
+        const closeModalOnBackdrop = (event) => {
+            if (event.target === event.currentTarget) {
+                closeModalMovil()
+            }
+        }
+        const handleEscapeKey = (event) => {
+            if (event.key === 'Escape' && isModalOpenMovil.value) {
+                closeModalMovil()
+            }
+        }
+
+        onMounted(() => {
+            document.addEventListener('keydown', handleEscapeKey);
+
+            if (isModalOpenMovil.value) {
+                initializeIcons();
+            }
+            
+            if (scrollContainer.value) {
+                scrollContainer.value.addEventListener('scroll', handleScroll)
+                setTimeout(handleScroll, 100)
+            }
+        })
+
+        onUnmounted(() => {
+            document.removeEventListener('keydown', handleEscapeKey)
+            document.body.style.overflow = ''
+
+            if (scrollContainer.value) {
+                scrollContainer.value.removeEventListener('scroll', handleScroll)
+            }
+        })
+
+        return {
+            isModalOpenMovil,
+            closeModalMovil,
+            closeModalOnBackdrop,
+            scrollContainer,
+            topGradient,
+            bottomGradient
+        }
+    }
+}
+</script>
+
+<template>
+    <Teleport to="body">
+        <Transition name="modal">
+            <div v-if="isModalOpenMovil" @click="closeModalOnBackdrop"
+                class="fixed inset-0 z-[999] grid h-screen w-screen place-items-center bg-opacity-70 backdrop-blur-sm">
+                <Transition name="modal-content">
+                    <div v-if="isModalOpenMovil" @click.stop
+                        class="relative w-full max-w-[95vw] sm:max-w-[85vw] md:max-w-[70vw] lg:max-w-[60vw] xl:max-w-[50vw] 2xl:max-w-[40vw] 
+                               max-h-[95vh] sm:max-h-[90vh] rounded-lg bg-white shadow-lg flex flex-col mx-auto">
+                        <!-- Header -->
+                        <div class="flex shrink-0 items-center justify-between p-6 pb-4 border-b border-slate-200">
+                            <h2 class="text-lg sm:text-xl lg:text-2xl font-bold text-primary-800 pr-2">Aplicaciones Móviles</h2>
+                            <button @click="closeModalMovil" class="text-slate-400 hover:text-slate-600 transition-colors">
+                                <i data-lucide="x" class="h-6 w-6"></i>
+                            </button>
+                        </div>
+
+                        <!-- Scrollable Content -->
+                        <div class="flex-1 overflow-y-auto px-6 py-4 custom-scrollbar scroll-smooth relative" ref="scrollContainer">
+                            <!-- Gradient indicators -->
+                            <div class="scroll-gradient-top" ref="topGradient"></div>
+                            <div class="scroll-gradient-bottom" ref="bottomGradient"></div>
+                            
+                            <div class="space-y-6">
+                            <!-- Descripción principal -->
+                            <div>
+                                <p class="text-slate-700 leading-relaxed text-sm sm:text-base">
+                                    Desarrollamos aplicaciones móviles nativas y multiplataforma que conectan con tu audiencia 
+                                    donde quiera que esté. Desde apps empresariales hasta aplicaciones de consumo masivo, 
+                                    creamos experiencias móviles excepcionales.
+                                </p>
+                            </div>
+
+                            <!-- Características principales -->
+                            <div>
+                                <h3 class="text-lg font-semibold text-primary-800 mb-3">¿Qué incluye nuestro servicio?</h3>
+                                <div class="grid grid-cols-1 gap-3">
+                                    <div class="flex items-start space-x-3">
+                                        <i data-lucide="smartphone" class="h-5 w-5 text-secondary-500 mt-0.5 flex-shrink-0" stroke-width="2.5"></i>
+                                        <div>
+                                            <span class="font-medium text-slate-800">Desarrollo Nativo</span>
+                                            <p class="text-sm text-slate-600">Apps optimizadas para iOS (Swift) y Android (Kotlin)</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start space-x-3">
+                                        <i data-lucide="layers" class="h-5 w-5 text-secondary-500 mt-0.5 flex-shrink-0"></i>
+                                        <div>
+                                            <span class="font-medium text-slate-800">Desarrollo Multiplataforma</span>
+                                            <p class="text-sm text-slate-600">Apps híbridas con React Native o Flutter</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start space-x-3">
+                                        <i data-lucide="paintbrush" class="h-5 w-5 text-secondary-500 mt-0.5 flex-shrink-0"></i>
+                                        <div>
+                                            <span class="font-medium text-slate-800">Diseño UI/UX Móvil</span>
+                                            <p class="text-sm text-slate-600">Interfaces intuitivas siguiendo guías de cada plataforma</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start space-x-3">
+                                        <i data-lucide="wifi" class="h-5 w-5 text-secondary-500 mt-0.5 flex-shrink-0"></i>
+                                        <div>
+                                            <span class="font-medium text-slate-800">Integración de APIs</span>
+                                            <p class="text-sm text-slate-600">Conexión con servicios web y bases de datos</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start space-x-3">
+                                        <i data-lucide="bell" class="h-5 w-5 text-secondary-500 mt-0.5 flex-shrink-0"></i>
+                                        <div>
+                                            <span class="font-medium text-slate-800">Notificaciones Push</span>
+                                            <p class="text-sm text-slate-600">Sistema de notificaciones personalizables</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start space-x-3">
+                                        <i data-lucide="download" class="h-5 w-5 text-secondary-500 mt-0.5 flex-shrink-0"></i>
+                                        <div>
+                                            <span class="font-medium text-slate-800">Publicación en Stores</span>
+                                            <p class="text-sm text-slate-600">Proceso completo de publicación en App Store y Google Play</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tipos de desarrollo -->
+                            <div>
+                                <h3 class="text-lg font-semibold text-primary-800 mb-3">Enfoques de desarrollo</h3>
+                                <div class="space-y-4">
+                                    <div class="border border-slate-200 rounded-lg p-4">
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <i data-lucide="smartphone" class="h-5 w-5 text-primary-600"></i>
+                                            <span class="font-semibold text-slate-800">Desarrollo Nativo</span>
+                                        </div>
+                                        <p class="text-sm text-slate-600 mb-2">Máximo rendimiento y acceso completo a funcionalidades del dispositivo</p>
+                                        <div class="flex space-x-4 text-xs text-slate-500">
+                                            <span>• iOS: Swift/Objective-C</span>
+                                            <span>• Android: Kotlin/Java</span>
+                                        </div>
+                                    </div>
+                                    <div class="border border-slate-200 rounded-lg p-4">
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <i data-lucide="layers" class="h-5 w-5 text-secondary-600"></i>
+                                            <span class="font-semibold text-slate-800">Desarrollo Multiplataforma</span>
+                                        </div>
+                                        <p class="text-sm text-slate-600 mb-2">Una sola base de código para ambas plataformas, desarrollo más rápido</p>
+                                        <div class="flex space-x-4 text-xs text-slate-500">
+                                            <span>• React Native</span>
+                                            <span>• Flutter</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Funcionalidades que incluimos -->
+                            <div>
+                                <h3 class="text-lg font-semibold text-primary-800 mb-3">Funcionalidades que incluimos</h3>
+                                <div class="grid grid-cols-2 gap-2 text-sm">
+                                    <div class="flex items-center space-x-2">
+                                        <i data-lucide="check-circle" class="h-4 w-4 text-secondary-500"></i>
+                                        <span class="text-slate-600">Autenticación biométrica</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <i data-lucide="check-circle" class="h-4 w-4 text-secondary-500"></i>
+                                        <span class="text-slate-600">Geolocalización GPS</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <i data-lucide="check-circle" class="h-4 w-4 text-secondary-500"></i>
+                                        <span class="text-slate-600">Cámara y galería</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <i data-lucide="check-circle" class="h-4 w-4 text-secondary-500"></i>
+                                        <span class="text-slate-600">Modo offline</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <i data-lucide="check-circle" class="h-4 w-4 text-secondary-500"></i>
+                                        <span class="text-slate-600">Sincronización en tiempo real</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <i data-lucide="check-circle" class="h-4 w-4 text-secondary-500"></i>
+                                        <span class="text-slate-600">Integración con redes sociales</span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <i data-lucide="check-circle" class="h-4 w-4 text-secondary-500"></i>
+                                        <span class="text-slate-600">Analytics y métricas</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tipos de aplicaciones -->
+                            <div>
+                                <h3 class="text-lg font-semibold text-primary-800 mb-3">Tipos de aplicaciones que desarrollamos</h3>
+                                <div class="space-y-3">
+                                    <div class="flex items-start space-x-3">
+                                        <i data-lucide="shopping-bag" class="h-5 w-5 text-secondary-500 mt-0.5 flex-shrink-0"></i>
+                                        <div>
+                                            <span class="font-medium text-slate-800">Apps de E-commerce</span>
+                                            <p class="text-sm text-slate-600">Tiendas móviles con carrito de compras y pagos integrados</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start space-x-3">
+                                        <i data-lucide="users" class="h-5 w-5 text-secondary-500 mt-0.5 flex-shrink-0"></i>
+                                        <div>
+                                            <span class="font-medium text-slate-800">Apps de Redes Sociales</span>
+                                            <p class="text-sm text-slate-600">Plataformas de comunicación y contenido social</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start space-x-3">
+                                        <i data-lucide="briefcase" class="h-5 w-5 text-secondary-500 mt-0.5 flex-shrink-0"></i>
+                                        <div>
+                                            <span class="font-medium text-slate-800">Apps Empresariales</span>
+                                            <p class="text-sm text-slate-600">Herramientas de productividad y gestión interna</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start space-x-3">
+                                        <i data-lucide="heart" class="h-5 w-5 text-secondary-500 mt-0.5 flex-shrink-0"></i>
+                                        <div>
+                                            <span class="font-medium text-slate-800">Apps de Salud y Fitness</span>
+                                            <p class="text-sm text-slate-600">Seguimiento de actividad física y bienestar</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Proceso de desarrollo -->
+                            <div>
+                                <h3 class="text-lg font-semibold text-primary-800 mb-3">Proceso de desarrollo</h3>
+                                <div class="space-y-3">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-sm font-bold">1</div>
+                                        <span class="text-slate-700">Investigación y definición de requisitos</span>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-sm font-bold">2</div>
+                                        <span class="text-slate-700">Diseño de wireframes y prototipos</span>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-sm font-bold">3</div>
+                                        <span class="text-slate-700">Desarrollo y programación</span>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-sm font-bold">4</div>
+                                        <span class="text-slate-700">Pruebas en dispositivos múltiples</span>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-primary-100 text-primary-600 rounded-full flex items-center justify-center text-sm font-bold">5</div>
+                                        <span class="text-slate-700">Publicación y mantenimiento</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tiempo de entrega -->
+                            <div class="bg-primary-50 p-4 rounded-lg">
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <i data-lucide="clock" class="h-5 w-5 text-primary-600"></i>
+                                    <span class="font-semibold text-primary-800">Tiempo de entrega</span>
+                                </div>
+                                <div class="text-primary-700 text-sm space-y-1">
+                                    <p>• App Nativa: 10-16 semanas</p>
+                                    <p>• App Multiplataforma: 8-12 semanas</p>
+                                    <p>• MVP (Producto Mínimo Viable): 8-10 semanas</p>
+                                </div>
+                            </div>
+
+                            <!-- Mantenimiento y soporte -->
+                            <div class="bg-secondary-50 p-4 rounded-lg">
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <i data-lucide="tool" class="h-5 w-5 text-secondary-600"></i>
+                                    <span class="font-semibold text-secondary-800">Soporte y mantenimiento</span>
+                                </div>
+                                <ul class="text-secondary-700 text-sm space-y-1">
+                                    <li>• Actualizaciones de compatibilidad con nuevas versiones del SO</li>
+                                    <li>• Corrección de bugs y mejoras de rendimiento</li>
+                                    <li>• Soporte técnico continuo</li>
+                                    <li>• Análisis de métricas y optimización</li>
+                                </ul>
+                            </div>
+                        </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="flex shrink-0 flex-col sm:flex-row items-stretch sm:items-center p-4 sm:p-6 pt-3 sm:pt-4 justify-end border-t border-slate-200 space-y-2 sm:space-y-0 sm:space-x-2">
+                            <button @click="closeModalMovil"
+                                class="rounded-md border border-slate-300 py-2.5 sm:py-2 px-4 text-center text-sm transition-all text-slate-600 hover:bg-slate-50 focus:bg-slate-50 order-2 sm:order-1"
+                                type="button">
+                                Cerrar
+                            </button>
+                            <button @click="abrirWhatsApp"
+                                class="rounded-md flex items-center justify-center bg-blue-400 text-white border border-transparent py-2.5 sm:py-2 px-4 text-center text-sm transition-all hover:bg-blue-500 focus:bg-blue-500 active:bg-blue-500 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none order-1 sm:order-2"
+                                type="button">
+                                Solicitar Cotización
+                            </button>
+                        </div>
+                        
+                    </div>
+                </Transition>
+            </div>
+        </Transition>
+    </Teleport>
+</template>
+
+<style scoped>
+@keyframes slideDown {
+    0% {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@media (max-width: 640px) {
+    @keyframes slideUp {
+        0% {
+            transform: translateY(50px);
+            opacity: 0;
+        }
+        100% {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    .modal-content-enter-active,
+    .modal-content-leave-active {
+        animation: slideUp 0.4s ease-out forwards;
+    }
+}
+
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+@media (min-width: 640px) {
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+    }
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+    margin: 8px 0;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%);
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #94a3b8 0%, #64748b 100%);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:active {
+    background: linear-gradient(180deg, #64748b 0%, #475569 100%);
+}
+
+.scroll-smooth {
+    scroll-behavior: smooth;
+}
+
+.scroll-gradient-top {
+    background: linear-gradient(to bottom, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 100%);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 15px;
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.scroll-gradient-bottom {
+    background: linear-gradient(to top, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 100%);
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 15px;
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+@media (min-width: 640px) {
+    .scroll-gradient-top,
+    .scroll-gradient-bottom {
+        height: 20px;
+    }
+}
+
+.scroll-gradient-top.show,
+.scroll-gradient-bottom.show {
+    opacity: 1;
+}
+
+.modal-enter-active,
+.modal-leave-active {
+    transition: opacity 0.3s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+    opacity: 0;
+}
+
+.modal-content-enter-active,
+.modal-content-leave-active {
+    animation: slideDown 0.6s ease-out forwards;
+    opacity: 0;
+}
+
+@media (min-width: 640px) {
+    .modal-content-enter-active,
+    .modal-content-leave-active {
+        animation: slideDown 0.8s ease-out 0.3s forwards;
+    }
+}
+
+.modal-content-enter-from,
+.modal-content-leave-to {
+    opacity: 0;
+    transform: scale(0.95) translateY(-20px);
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+    }
+    
+    button {
+        min-height: 44px; 
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+    .modal-content-enter-active,
+    .modal-content-leave-active {
+        animation: slideDown 0.7s ease-out 0.2s forwards;
+    }
+}
+
+@media (max-width: 640px) {
+    h2, h3 {
+        line-height: 1.3;
+    }
+    
+    .space-y-4 > * + * {
+        margin-top: 1rem;
+    }
+    
+    button {
+        min-height: 44px;
+    }
+}
+
+@media (max-width: 926px) and (orientation: landscape) {
+    .modal-content {
+        max-height: 85vh;
+    }
+}
+</style>

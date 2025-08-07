@@ -1,0 +1,80 @@
+@keyframes slideDown {
+  0% {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes belowDelay {
+  0% {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes slideFromLeft {
+  0% {
+    transform: translateX(-100px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideFromRight {
+  0% {
+    transform: translateX(100px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+.animate-slide-down {
+  animation: slideDown 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-slide-down-delay-1 {
+  animation: slideDown 0.8s ease-out 0.3s forwards;
+  opacity: 0;
+}
+
+.animate-slide-below {
+  animation: belowDelay 0.5s ease-out 0.3s forwards;
+  opacity: 0;
+}
+
+.animate-slide-below-1 {
+  animation: belowDelay 1s ease-out 0.3s forwards;
+  opacity: 0;
+}
+
+.animate-slide-below-2 {
+  animation: belowDelay 1.5s ease-out 0.3s forwards;
+  opacity: 0;
+}
+
+.animate-slide-down-delay-2 {
+  animation: slideDown 0.8s ease-out 0.6s forwards;
+  opacity: 0;
+}
+
+.animate-slide-from-left {
+  animation: slideFromLeft 1s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-slide-from-right {
+  animation: slideFromRight 1s ease-out forwards;
+  opacity: 0;
+}
